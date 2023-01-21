@@ -1,0 +1,12 @@
+[Unit]
+Description=HTTP server that takes screenshots of the BART realtime status page for displaying them on a kindle.
+
+[Service]
+ExecStart=node app.js
+WorkingDirectory=/opt/bart-screenshots/
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+Requires=network-online.target
