@@ -51,7 +51,6 @@ async function load(page, url) {
   console.log(`load: ${url}`);
   const response = await page.goto(url);
 
-  page.screenshot({ path: pageFile });
   console.log(`load: ${url} ${response.status()}`);
 
   return response;
