@@ -18,6 +18,10 @@ if (response.status() != 200) {
 }
 
 express()
+  .get("/health", async (req, res) => {
+    console.log("GET /health");
+    res.send("ok");
+  })
   .get("/", async (req, res) => {
     console.log("GET /");
 
@@ -32,6 +36,8 @@ express()
 
     const final = await convert(path);
 
+    deleteFile(path);
+
     res.writeHead(200, {
       "Content-Type": "image/png",
       "Content-Length": final.length,
@@ -45,9 +51,8 @@ async function load(page, url) {
   console.log(`load: ${url}`);
   const response = await page.goto(url);
 
-  const pageFile = await tempfile(".png");
   page.screenshot({ path: pageFile });
-  console.log(`load: ${url} ${response.status()} ${pageFile}`);
+  console.log(`load: ${url} ${response.status()}`);
 
   return response;
 }
@@ -94,6 +99,18 @@ function exec(program, args) {
   });
 }
 
+function deleteFile(path) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(path, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 async function convert(path) {
   const rotatedPath = await tempfile(".png");
   const paddedPath = await tempfile(".png");
@@ -122,9 +139,16 @@ async function convert(path) {
   ]);
   await exec("convert", [colorsafePath, "-scale", "758x1024", finalPath]);
 
-  console.log({ path, paddedPath, rotatedPath, colorsafePath, finalPath });
+  const finalContents = await readFile(finalPath);
 
-  return await readFile(finalPath);
+  // Not awaiting these promises because we don't need to block the HTTP request
+  // on the disk IO here
+  deleteFile(rotatedPath);
+  deleteFile(paddedPath);
+  deleteFile(colorsafePath);
+  deleteFile(finalPath);
+
+  return finalContents;
 }
 
 (async () => {})();
