@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import puppeteer from "puppeteer";
+import puppeteer, { ConsoleMessage } from "puppeteer";
 import { execFile } from "child_process";
 import fs from "fs";
 import * as temp from "temp";
@@ -25,7 +25,16 @@ express()
   .get("/", async (req, res) => {
     console.log("GET /");
 
-    await page.waitForSelector(".real-time-departures");
+    try {
+      await page.waitForSelector(".real-time-departures");
+    } catch (TimeoutError) {
+      console.log("timeout waiting for element");
+      console.log("response 500");
+
+      res.writeHead(500);
+      res.end("timeout waiting for element");
+      return;
+    }
     const element = await page.$(".real-time-departures");
 
     await page.screenshot({ path: "page.png" });
