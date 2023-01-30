@@ -9,13 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 const browser = await puppeteer.launch();
 
-const page = await browser.newPage();
-await page.setViewport({ width: 1200, height: 1200 });
-let response = await load(page, `https://www.bart.gov/schedules/eta?stn=CIVC`);
-
-if (response.status() != 200) {
-  throw new Error("Failed to initialize!");
-}
+let page = null;
+await initPage();
 
 express()
   .get("/health", async (req, res) => {
@@ -55,6 +50,49 @@ express()
     return res.end(final);
   })
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+// This loop purges and re-opens the page every hour because it seems that the
+// program has a memory leak.
+while (true) {
+  // wait one hour
+  await timeout(1000 * 60 * 60);
+  await initPage();
+}
+
+async function initPage() {
+  const newPage = await browser.newPage();
+  await newPage.setViewport({ width: 1200, height: 1200 });
+  let response = await load(
+    newPage,
+    `https://www.bart.gov/schedules/eta?stn=CIVC`
+  );
+
+  let delay = 10;
+  let attempts = 5;
+  while (response.status() != 200) {
+    if (attempts <= 0) {
+      throw new Error("Failed to load bart website!");
+    }
+    attempts--;
+
+    console.log(`sleep ${delay}s`);
+    await timeout(delay * 1000);
+
+    delay *= 2;
+
+    response = await load(
+      newPage,
+      `https://www.bart.gov/schedules/eta?stn=CIVC`
+    );
+  }
+
+  if (page) {
+    console.log("closing existing page");
+    page.close();
+  }
+
+  page = newPage;
+}
 
 async function load(page, url) {
   console.log(`load: ${url}`);
