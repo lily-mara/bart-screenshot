@@ -68,12 +68,11 @@ async function initPage() {
   );
 
   let delay = 10;
-  let attempts = 5;
+  let attempts = 20;
   while (response.status() != 200) {
     if (attempts <= 0) {
       throw new Error("Failed to load bart website!");
     }
-    attempts--;
 
     console.log(`sleep ${delay}s`);
     await timeout(delay * 1000);
