@@ -63,6 +63,9 @@ while (true) {
 async function initPage() {
   const newPage = await browser.newPage();
   await newPage.setViewport({ width: 1200, height: 1200 });
+  await newPage.setUserAgent(
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+  );
   let response = await load(newPage, URL);
 
   let delay = 10;
