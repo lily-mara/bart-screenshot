@@ -6,6 +6,7 @@ import fs from "fs";
 import * as temp from "temp";
 
 const PORT = process.env.PORT || 3000;
+const URL = "https://www.bart.gov/schedules/eta?stn=CIVC";
 
 const browser = await puppeteer.launch();
 
@@ -62,10 +63,7 @@ while (true) {
 async function initPage() {
   const newPage = await browser.newPage();
   await newPage.setViewport({ width: 1200, height: 1200 });
-  let response = await load(
-    newPage,
-    `https://www.bart.gov/schedules/eta?stn=CIVC`
-  );
+  let response = await load(newPage, URL);
 
   let delay = 10;
   let attempts = 20;
@@ -79,10 +77,7 @@ async function initPage() {
 
     delay *= 2;
 
-    response = await load(
-      newPage,
-      `https://www.bart.gov/schedules/eta?stn=CIVC`
-    );
+    response = await load(newPage, URL);
   }
 
   if (page) {
