@@ -128,7 +128,7 @@ async function screenshotSingleMuniPage(url, page) {
     });
   });
 
-  const path = url.replace("https://www.sfmta.com/stops/", "") + ".png";
+  const path = await tempfile(".png");
 
   await element.screenshot({ path });
 
