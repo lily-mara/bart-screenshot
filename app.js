@@ -5,6 +5,8 @@ import { execFile } from "child_process";
 import fs from "fs";
 import * as temp from "temp";
 
+const debug = require("debug")("app");
+
 const PORT = process.env.PORT || 3000;
 const URL = "https://www.bart.gov/schedules/eta?stn=CIVC";
 
@@ -69,6 +71,7 @@ express()
     console.log("GET /");
 
     try {
+      debug("wait for element");
       await bartPage.waitForSelector(".real-time-departures");
     } catch (TimeoutError) {
       console.log("timeout waiting for element");
@@ -78,12 +81,16 @@ express()
       res.end("timeout waiting for element");
       return;
     }
+    debug("load element");
     const element = await bartPage.$(".real-time-departures");
 
+    debug("create tempfile");
     const path = await tempfile(".png");
 
+    debug("screenshot");
     await element.screenshot({ path });
 
+    debug("run conversion");
     const final = await convert(path);
 
     deleteFile(path);
