@@ -5,7 +5,9 @@ import { execFile } from "child_process";
 import fs from "fs";
 import * as temp from "temp";
 
-const debug = require("debug")("app");
+import debugInit from "debug";
+
+const debug = debugInit("app");
 
 const PORT = process.env.PORT || 3000;
 const URL = "https://www.bart.gov/schedules/eta?stn=CIVC";
