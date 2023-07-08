@@ -27,7 +27,9 @@ let muniPages = {
   west: {},
 };
 
-const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({
+  headless: "new",
+});
 
 let bartPage = null;
 
