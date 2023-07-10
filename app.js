@@ -31,9 +31,9 @@ let muniPages = {
   west: {},
 };
 
-const args = puppeteer.defaultArgs();
-
-args.delete("--disable-dev-shm-usage");
+const args = puppeteer
+  .defaultArgs()
+  .filter((x) => x !== "--disable-dev-shm-usage");
 
 const browser = await puppeteer.launch({
   headless: "new",
